@@ -1,48 +1,63 @@
-#ifndef BIGINT_BIG_INTEGER_H
-#define BIGINT_BIG_INTEGER_H
+#ifndef BIG_INT
+#define BIG_INT
 
 //
 // Created by blagoi on 12.04.19.
 //
 
-#include <string>
 #include <vector>
 #include <algorithm>
+#include <string>
+#include "own_vector.h"
 #include <stdexcept>
-
-typedef long long ll;
-typedef unsigned long long ull;
 
 struct big_integer {
     big_integer();
 
     big_integer(big_integer const &other);
 
-    big_integer(ll a);
+    big_integer(big_integer && other) noexcept;
 
-    big_integer(unsigned a);
+    big_integer(uint32_t a);
 
     big_integer(int a);
 
-    big_integer(bool negate, std::vector<unsigned int> const &data);
-
     explicit big_integer(std::string const &str);
-
 
     ~big_integer();
 
+    big_integer operator-() const;
+
+    big_integer operator+() const;
+
+    big_integer &operator++();
+
+    const big_integer operator++(int);
+
+    big_integer &operator--();
+
+    const big_integer operator--(int);
+
+    big_integer operator~() const;
+
+
     big_integer &operator=(big_integer const &other);
+
+    big_integer &operator+=(int other);
 
     big_integer &operator+=(big_integer const &other);
 
     big_integer &operator-=(big_integer const &other);
 
+    big_integer &operator-=(int other);
+
     big_integer &operator*=(big_integer const &other);
 
     big_integer &operator/=(big_integer const &other);
 
+    big_integer &operator/=(uint32_t a);
 
-    big_integer &operator%=(big_integer const &other);
+    big_integer &operator/=(int a);
 
     big_integer &operator&=(big_integer const &other);
 
@@ -52,23 +67,10 @@ struct big_integer {
 
     big_integer &operator<<=(int a);
 
-
     big_integer &operator>>=(int a);
 
-    big_integer operator-() const;
+    big_integer &operator%=(big_integer const &other);
 
-    big_integer operator+() const;
-
-    big_integer &operator++();
-
-    big_integer operator++(int);
-
-    big_integer &operator--();
-
-    big_integer operator--(int);
-
-
-    big_integer operator~() const;
 
     friend big_integer operator+(big_integer a, big_integer const &b);
 
@@ -77,6 +79,10 @@ struct big_integer {
     friend big_integer operator*(big_integer a, big_integer const &b);
 
     friend big_integer operator/(big_integer a, big_integer const &b);
+
+    friend big_integer operator/(big_integer a, int b);
+
+    friend big_integer operator/(big_integer a, uint32_t b);
 
     friend big_integer operator%(big_integer a, big_integer const &b);
 
@@ -90,15 +96,16 @@ struct big_integer {
 
     friend big_integer operator<<(big_integer a, int b);
 
+
     friend bool operator==(big_integer const &a, big_integer const &b);
 
     friend bool operator!=(big_integer const &a, big_integer const &b);
 
-    friend bool operator<=(big_integer const &a, big_integer const &b);
+    friend bool operator<(big_integer const &a, big_integer const &b);
 
     friend bool operator>(big_integer const &a, big_integer const &b);
 
-    friend bool operator<(big_integer const &a, big_integer const &b);
+    friend bool operator<=(big_integer const &a, big_integer const &b);
 
     friend bool operator>=(big_integer const &a, big_integer const &b);
 
@@ -107,7 +114,9 @@ struct big_integer {
 
     void swap(big_integer &b);
 
-    const unsigned get_digit(size_t i) const;
+    void swap(big_integer &&b);
+
+    const uint32_t get_digit(size_t i) const;
 
     bool below_zero() const;
 
@@ -116,13 +125,14 @@ struct big_integer {
 private:
     void normalize();
 
-    std::vector<unsigned int> data;
-    bool sign;
-    ull const BASE = 1ll << 32;
-    size_t const BASE_SIZE = 32;
-    unsigned MAX_ELEM = UINT32_MAX;
+    big_integer(bool negate, own_vector const &data);
+    own_vector ownVector;
+    bool sign = false;
+    static uint64_t const BASE = 1ll << 32;
+    static size_t const BASE_SIZE = (1 << 5);
+    static uint32_t const MAX_ELEM = UINT32_MAX;
 };
 
 std::string to_string(big_integer const &value);
 
-#endif //BIGINT_BIG_INTEGER_H
+#endif // BIG_INTEGER_H
